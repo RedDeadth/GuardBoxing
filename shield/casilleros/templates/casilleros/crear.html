@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Casillero</title>
+</head>
+<body>
+    <h1>Crear Casillero</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="id">ID del Casillero:</label>
+        <input type="text" id="id" name="id"><br>
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre"><br>
+        <label for="ubicacion">Ubicación:</label>
+        <input type="text" id="ubicacion" name="ubicacion"><br>
+        <label for="precio">Precio:</label>
+        <input type="text" id="precio" name="precio"><br>
+        <label for="descripcion">Descripción:</label>
+        <input type="text" id="descripcion" name="descripcion"><br>
+        <button type="submit">Crear</button>
+    </form>
+</body>
+</html>

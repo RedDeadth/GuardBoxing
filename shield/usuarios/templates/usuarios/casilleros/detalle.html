@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Casillero</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Detalle del Casillero</h1>
+
+    <form id="detalleForm">
+        <label for="nombre">Nombre del Casillero</label>
+        <input type="text" id="nombre" name="nombre" value="{{ nombre }}">
+
+        <label for="ubicacion">Ubicación</label>
+        <input type="text" id="ubicacion" name="ubicacion" value="{{ ubicacion }}">
+
+        <label for="precio">Precio</label>
+        <input type="number" id="precio" name="precio" value="{{ precio }}">
+
+        <label for="descripcion">Descripción</label>
+        <textarea id="descripcion" name="descripcion">{{ descripcion }}</textarea>
+
+        <button type="button" onclick="guardarCambios()">Guardar Cambios</button>
+    </form>
+
+    <script>
+        // Función para guardar los cambios (puedes enviar esta información al servidor)
+        function guardarCambios() {
+            const nombre = document.getElementById('nombre').value;
+            const ubicacion = document.getElementById('ubicacion').value;
+            const precio = document.getElementById('precio').value;
+            const descripcion = document.getElementById('descripcion').value;
+
+            alert(`Cambios guardados:\nNombre: ${nombre}\nUbicación: ${ubicacion}\nPrecio: ${precio}\nDescripción: ${descripcion}`);
+            // Aquí puedes agregar código para guardar los cambios en una base de datos o enviar un request al servidor
+        }
+    </script>
+</body>
+</html>

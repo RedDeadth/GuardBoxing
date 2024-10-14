@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Casilleros</title>
+</head>
+<body>
+    <h1>Lista de Casilleros</h1>
+    <a href="{% url 'casilleros:crear_casillero' %}">Crear nuevo casillero</a>
+    <ul>
+        {% for id, casillero in casilleros.items %}
+            <li>
+                <a href="{% url 'casilleros:detalle_casillero' id=id %}">{{ casillero.nombre }}</a>
+                <a href="{% url 'casilleros:bloquear_casillero' id=id %}">
+                {% if casillero.estado == 'disponible' %}
+                    Bloquear
+                {% else %}
+                    Desbloquear
+                {% endif %}
+                </a>
+                <a href="{% url 'casilleros:cambiar_estado_casillero' id=id %}">
+                    {% if casillero.estado_apertura == 'abierto' %}
+                        Cerrar
+                    {% else %}
+                        Abrir
+                    {% endif %}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>
