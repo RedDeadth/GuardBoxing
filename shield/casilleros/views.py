@@ -2,9 +2,22 @@ from django.shortcuts import render, redirect
 from firebase_admin import db
 from django.contrib.auth.decorators import login_required
 from .utils import login_required_firebase  # Importar el decorador personalizado
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from .serializers import CasilleroSerializer
+from django.http import JsonResponse
 
-# Mostrar lista de casilleros
-@login_required_firebase
+@api_view(['GET'])
+def api_listar_casilleros(request):
+    ref = db.reference('casilleros')
+    casilleros = ref.get()  # Obtiene todos los casilleros
+
+    if casilleros:
+        # Serializamos la información
+        serializer = CasilleroSerializer(casilleros)
+        return Response(serializer.data)
+    return JsonResponse({"message": "No se encontraron casilleros"}, status=404)
+
 def casilleros_list(request):
     ref = db.reference('casilleros')
     casilleros = ref.get()  # Obtiene todos los casilleros desde Firebase Realtime Database
@@ -66,3 +79,4 @@ def cambiar_apertura(request, id):
         })
     
     return redirect('casilleros:casilleros_list')
+
