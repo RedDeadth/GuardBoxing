@@ -18,6 +18,7 @@ FIREBASE_WEB_API_KEY = "AIzaSyDoGQNvfqGc-9d5hXTYgT8RNzLX-v0eBP0"
 
 #Proteger vistas para que no las salten sin logearse
 #-----------------------------------------------------------
+
 def login_required_firebase(view_func):
     def wrapper(request, *args, **kwargs):
         if 'id_token' not in request.session:

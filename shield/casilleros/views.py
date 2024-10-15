@@ -29,6 +29,7 @@ def crear_casillero(request):
             'precio': precio,
             'descripcion': descripcion,
             'estado': 'disponible',  # El estado puede ser 'disponible' o 'bloqueado'
+            'apertura': 'cerrado', 
         })
 
         return redirect('casilleros:casilleros_list')
@@ -54,16 +55,14 @@ def bloquear_casillero(request, id):
 
     return redirect('casilleros:casilleros_list')
 
-def cambiar_estado_casillero(request, id):
-    # Referencia a la ubicación del casillero en Firebase
+def cambiar_apertura(request, id):
     ref = db.reference(f'casilleros/{id}')
-    casillero = ref.get()  # Obtiene el casillero con el ID
+    casillero = ref.get()
 
-    # Verifica si el casillero existe
     if casillero:
-        # Si el estado es 'abierto', lo cambia a 'cerrado', y viceversa
-        nuevo_estado = 'cerrado' if casillero['estado_apertura'] == 'abierto' else 'abierto'
-        ref.update({'estado_apertura': nuevo_estado})
+        nueva_apertura = 'abierto' if casillero.get('apertura') == 'cerrado' else 'cerrado'
+        ref.update({
+            'apertura': nueva_apertura
+        })
     
-    # Redirigir a la lista de casilleros
     return redirect('casilleros:casilleros_list')
