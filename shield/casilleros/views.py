@@ -26,6 +26,7 @@ def casilleros_list(request):
 
 # Crear nuevo casillero
 
+# Creación de un nuevo casillero
 def crear_casillero(request):
     if request.method == 'POST':
         id = request.POST.get('id')
@@ -41,42 +42,56 @@ def crear_casillero(request):
             'ubicacion': ubicacion,
             'precio': precio,
             'descripcion': descripcion,
-            'estado': 'disponible',  # El estado puede ser 'disponible' o 'bloqueado'
-            'apertura': 'cerrado', 
+            'estado_bloqueo': False,  # El estado de bloqueo ahora es un booleano
+            'apertura': 'cerrado',  # El estado de apertura puede ser 'abierto' o 'cerrado'
         })
 
         return redirect('casilleros:casilleros_list')
+    
     return render(request, 'casilleros/crear.html')
 
-# Detalles de un casillero
 def detalle_casillero(request, id):
-    ref = db.reference(f'casilleros/{id}')
-    casillero = ref.get()
-    return render(request, 'casilleros/detalle.html', {'casillero': casillero})
+    # Referencia a los casilleros en Firebase
+    ref = db.reference('casilleros')
+    casilleros = ref.get()
+
+    # Obtener el casillero usando el id como clave
+    casillero = casilleros.get(id)  # Aquí estamos obteniendo el casillero por su id
+
+    # Verificar si el casillero fue encontrado
+    if casillero:
+        return render(request, 'casilleros/detalle.html', {'casillero': casillero, 'id': id})
+    else:
+        # Si el casillero no existe, redirigir o mostrar un mensaje
+        return render(request, 'casilleros/detalle.html', {'casillero': None, 'mensaje': 'Casillero no encontrado'})
+
 
 def bloquear_casillero(request, id):
     ref = db.reference(f'casilleros/{id}')
-    casillero = ref.get() 
-    if casillero:
-        # Verificar el estado actual
-        if casillero['estado'] == 'desbloqueado':
-            # Si está disponible, bloquearlo
-            ref.update({'estado': 'bloqueado'})
-        elif casillero['estado'] == 'bloqueado':
-            # Si ya está bloqueado, desbloquearlo
-            ref.update({'estado': 'desbloqueado'})
+    casillero = ref.get()
 
-    return redirect('casilleros:casilleros_list')
+    # Cambiar el estado de bloqueo
+    nuevo_estado = not casillero.get('estado_bloqueo', False)  # Alterna el estado
+    ref.update({
+        'estado_bloqueo': nuevo_estado
+    })
+    return JsonResponse({
+        'estado_bloqueo': nuevo_estado,
+        'mensaje': 'Bloqueado' if nuevo_estado else 'Desbloqueado'
+    })
 
-def cambiar_apertura(request, id):
+# Vista para abrir/cerrar casillero
+def gestionar_apertura(request, id):
     ref = db.reference(f'casilleros/{id}')
     casillero = ref.get()
 
-    if casillero:
-        nueva_apertura = 'abierto' if casillero.get('apertura') == 'cerrado' else 'cerrado'
-        ref.update({
-            'apertura': nueva_apertura
-        })
-    
-    return redirect('casilleros:casilleros_list')
+    # Cambiar el estado de apertura
+    nuevo_estado_apertura = 'cerrado' if casillero.get('apertura') == 'abierto' else 'abierto'
+    ref.update({
+        'apertura': nuevo_estado_apertura
+    })
 
+    return JsonResponse({
+        'apertura': nuevo_estado_apertura,
+        'mensaje': 'Cerrado' if nuevo_estado_apertura == 'cerrado' else 'Abierto'
+    })

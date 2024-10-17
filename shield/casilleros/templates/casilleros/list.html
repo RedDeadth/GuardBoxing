@@ -9,7 +9,10 @@
 </head>
 <body>
     <h1>Lista de Casilleros</h1>
-    
+
+    <!-- Línea añadida: Botón para añadir un nuevo casillero -->
+    <button id="add-casillero-btn">Añadir Casillero</button>
+
     <ul id="casillero-list"></ul>
 
     <script>
@@ -19,7 +22,7 @@
                 url: '/casilleros/api/lista/',  // API que provee los datos de Firebase
                 type: 'GET',
                 success: function(data) {
-                    var casilleros = data;  // Respuesta JSON con los casilleros
+                    var casilleros = data;
                     var casilleroList = $('#casillero-list');
                     
                     // Limpiar la lista anterior antes de mostrar los datos nuevos
@@ -28,27 +31,86 @@
                     // Iterar sobre los casilleros y agregarlos a la lista HTML
                     for (var id in casilleros) {
                         var casillero = casilleros[id];
+
+                        // Generar texto dinámico para bloqueo y apertura
+                        var texto_bloqueo = casillero.estado_bloqueo ? 'Desbloquear' : 'Bloquear';
+                        var texto_apertura = casillero.apertura === 'abierto' ? 'Cerrar' : 'Abrir';
+
+                        // Línea modificada: Incluir enlace al detalle de casillero
                         casilleroList.append(
                             '<li>' +
-                            'Nombre: ' + casillero.nombre + ', ' +
-                            'Ubicación: ' + casillero.ubicacion + ', ' +
-                            'Descrpcion: ' + casillero.descripcion + ', ' +
-                            'Precio: ' + casillero.precio + ', ' +
-                            'Estado de bloqueo: ' + (casillero.estado_bloqueo ? 'Bloqueado' : 'Desbloqueado') + ', ' +
-                            'Estado de apertura: ' + casillero.apertura +
-                            '</li>'
+                            'id: '+ id + '<br>' +
+                            'Nombre: ' + casillero.nombre + '<br>' +
+                            'Ubicación: ' + casillero.ubicacion + '<br>' +
+                            'Precio: ' + casillero.precio + '<br>' +
+                            'Estado de bloqueo: ' + (casillero.estado_bloqueo ? 'Bloqueado' : 'Desbloqueado') + '<br>' +
+                            'Estado de apertura: ' + casillero.apertura + '<br>' +
+                            // Añadido: Enlace al detalle del casillero
+                            '<a href="/casilleros/detalle/' + id + '/">Ver Detalles</a><br>' +
+                            '<button class="bloquear-btn" data-id="' + id + '">' + texto_bloqueo + '</button> ' +
+                            '<button class="apertura-btn" data-id="' + id + '">' + texto_apertura + '</button>' +
+                            '</li><br>'
                         );
                     }
                 }
             });
         }
 
-        // Llamada a la función para cargar los casilleros al cargar la página
+        // Función para cambiar el estado de bloqueo
+        function cambiarEstadoBloqueo(id) {
+            $.ajax({
+                url: '/casilleros/bloquear/' + id + '/',
+                type: 'GET',
+                success: function(response) {
+                    // Actualizar dinámicamente el estado en la interfaz
+                    var botonBloqueo = $('button.bloquear-btn[data-id="' + id + '"]');
+                    botonBloqueo.text(response.estado_bloqueo ? 'Desbloquear' : 'Bloquear');
+
+                    var estadoBloqueo = botonBloqueo.closest('li').find('br').eq(2).prev();
+                    estadoBloqueo.text('Estado de bloqueo: ' + (response.estado_bloqueo ? 'Bloqueado' : 'Desbloqueado'));
+                }
+            });
+        }
+
+        // Función para cambiar el estado de apertura
+        function cambiarEstadoApertura(id) {
+            $.ajax({
+                url: '/casilleros/abrir/' + id + '/',
+                type: 'GET',
+                success: function(response) {
+                    // Actualizar dinámicamente el estado en la interfaz
+                    var botonApertura = $('button.apertura-btn[data-id="' + id + '"]');
+                    botonApertura.text(response.apertura === 'abierto' ? 'Cerrar' : 'Abrir');
+
+                    var estadoApertura = botonApertura.closest('li').find('br').eq(3).prev();
+                    estadoApertura.text('Estado de apertura: ' + response.apertura);
+                }
+            });
+        }
+
+        // Línea añadida: Acción para el botón de añadir un nuevo casillero
+        $('#add-casillero-btn').click(function() {
+            window.location.href = '/casilleros/crear/';  // Redirige a la página para crear un nuevo casillero
+        });
+
+        // Cargar casilleros al cargar la página
         $(document).ready(function() {
             loadCasilleros();
+            
+            // Escuchar los clics en los botones de bloqueo
+            $(document).on('click', '.bloquear-btn', function() {
+                var id = $(this).data('id');
+                cambiarEstadoBloqueo(id);
+            });
 
-            // Configuramos el intervalo para actualizar la lista cada 5 segundos
-            setInterval(loadCasilleros, 5000);  // Actualiza cada 5 segundos
+            // Escuchar los clics en los botones de apertura
+            $(document).on('click', '.apertura-btn', function() {
+                var id = $(this).data('id');
+                cambiarEstadoApertura(id);
+            });
+
+            // Actualizar la lista cada 5 segundos
+            setInterval(loadCasilleros, 5000);
         });
     </script>
 </body>

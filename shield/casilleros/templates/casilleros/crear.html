@@ -1,26 +1,19 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Casillero</title>
-</head>
-<body>
-    <h1>Crear Casillero</h1>
-    <form method="post">
-        {% csrf_token %}
-        <label for="id">ID del Casillero:</label>
-        <input type="text" id="id" name="id"><br>
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre"><br>
-        <label for="ubicacion">Ubicación:</label>
-        <input type="text" id="ubicacion" name="ubicacion"><br>
-        <label for="precio">Precio:</label>
-        <input type="text" id="precio" name="precio"><br>
-        <label for="descripcion">Descripción:</label>
-        <input type="text" id="descripcion" name="descripcion"><br>
-        <button type="submit">Crear</button>
-    </form>
-</body>
-</html>
+<form method="POST">
+    {% csrf_token %}
+    <label for="id">ID:</label>
+    <input type="text" name="id" required><br>
+
+    <label for="nombre">Nombre:</label>
+    <input type="text" name="nombre" required><br>
+
+    <label for="ubicacion">Ubicación:</label>
+    <input type="text" name="ubicacion" required><br>
+
+    <label for="precio">Precio:</label>
+    <input type="number" name="precio" required><br>
+
+    <label for="descripcion">Descripción:</label>
+    <input type="text" name="descripcion" required><br>
+
+    <input type="submit" value="Crear Casillero">
+</form>

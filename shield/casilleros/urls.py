@@ -9,6 +9,5 @@ urlpatterns = [
     path('crear/', views.crear_casillero, name='crear_casillero'),
     path('detalle/<str:id>/', views.detalle_casillero, name='detalle_casillero'),
     path('bloquear/<str:id>/', views.bloquear_casillero, name='bloquear_casillero'),
-    path('cambiar-apertura/<str:id>/', views.cambiar_apertura, name='cambiar_apertura'),
-      # Ruta para la API
+    path('abrir/<str:id>/', views.gestionar_apertura, name='gestionar_apertura'),  # Nueva URL para gestionar la apertura
 ]

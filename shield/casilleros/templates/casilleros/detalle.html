@@ -5,14 +5,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalles del Casillero</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <h1>Detalles del Casillero</h1>
-    <p>ID: {{ casillero.id }}</p>
+    
+    <p>ID: {{ id }}</p>
     <p>Nombre: {{ casillero.nombre }}</p>
     <p>Ubicación: {{ casillero.ubicacion }}</p>
     <p>Precio: {{ casillero.precio }}</p>
     <p>Descripción: {{ casillero.descripcion }}</p>
-    <p>Estado: {{ casillero.estado }}</p>
+
+    <!-- Nuevo campo: Nombre del propietario -->
+    <p>Propietario: {{ casillero.propietario }}</p> <!-- Campo añadido -->
+
+    <p>Estado de bloqueo: <span id="estado_bloqueo">{{ casillero.estado_bloqueo|yesno:"Bloqueado,Desbloqueado" }}</span></p>
+    <p>Estado de apertura: <span id="estado_apertura">{{ casillero.apertura }}</span></p>
+
+    <!-- Botones para cambiar el estado de bloqueo y apertura -->
+    <button id="bloquear-btn" class="bloquear-btn" data-id="{{ id }}">
+        {% if casillero.estado_bloqueo %}
+            Desbloquear
+        {% else %}
+            Bloquear
+        {% endif %}
+    </button>
+
+    <button id="apertura-btn" class="apertura-btn" data-id="{{ id }}">
+        {% if casillero.apertura == 'abierto' %}
+            Cerrar
+        {% else %}
+            Abrir
+        {% endif %}
+    </button>
+
+    <script>
+        // Función para cambiar el estado de bloqueo
+        function cambiarEstadoBloqueo(id) {
+            $.ajax({
+                url: '/casilleros/bloquear/' + id + '/',
+                type: 'GET',
+                success: function(response) {
+                    // Actualizar dinámicamente el estado en la interfaz
+                    var botonBloqueo = $('#bloquear-btn');
+                    botonBloqueo.text(response.estado_bloqueo ? 'Desbloquear' : 'Bloquear');
+                    $('#estado_bloqueo').text(response.estado_bloqueo ? 'Bloqueado' : 'Desbloqueado');
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error al cambiar el estado de bloqueo: " + error);
+                }
+            });
+        }
+
+        // Función para cambiar el estado de apertura
+        function cambiarEstadoApertura(id) {
+            $.ajax({
+                url: '/casilleros/abrir/' + id + '/',
+                type: 'GET',
+                success: function(response) {
+                    // Actualizar dinámicamente el estado en la interfaz
+                    var botonApertura = $('#apertura-btn');
+                    botonApertura.text(response.apertura === 'abierto' ? 'Cerrar' : 'Abrir');
+                    $('#estado_apertura').text(response.apertura);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error al cambiar el estado de apertura: " + error);
+                }
+            });
+        }
+
+        // Evento de clic para cambiar el estado de bloqueo
+        $('#bloquear-btn').click(function() {
+            var id = $(this).data('id');  // Obtenemos el ID desde el botón
+            cambiarEstadoBloqueo(id);
+        });
+
+        // Evento de clic para cambiar el estado de apertura
+        $('#apertura-btn').click(function() {
+            var id = $(this).data('id');  // Obtenemos el ID desde el botón
+            cambiarEstadoApertura(id);
+        });
+    </script>
 </body>
 </html>
