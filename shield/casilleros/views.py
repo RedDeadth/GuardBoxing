@@ -6,17 +6,17 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .serializers import CasilleroSerializer
 from django.http import JsonResponse
+from .models import Casillero
 
 @api_view(['GET'])
-def api_listar_casilleros(request):
-    ref = db.reference('casilleros')
-    casilleros = ref.get()  # Obtiene todos los casilleros
+def lista_casilleros(request):
+    """
+    Obtiene los casilleros de Firebase y los envía como respuesta JSON.
+    """
+    ref = db.reference('casilleros')  # Obtiene la referencia de 'casilleros' en Firebase
+    casilleros = ref.get()  # Obtiene los datos de los casilleros
 
-    if casilleros:
-        # Serializamos la información
-        serializer = CasilleroSerializer(casilleros)
-        return Response(serializer.data)
-    return JsonResponse({"message": "No se encontraron casilleros"}, status=404)
+    return JsonResponse(casilleros)
 
 def casilleros_list(request):
     ref = db.reference('casilleros')

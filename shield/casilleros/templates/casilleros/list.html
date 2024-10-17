@@ -5,39 +5,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Casilleros</title>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Función para obtener los casilleros desde la API
-            function fetchCasilleros() {
-                fetch('/casilleros/api/casilleros/')
-                    .then(response => response.json())
-                    .then(data => {
-                        const listElement = document.getElementById('casilleros-list');
-                        listElement.innerHTML = '';  // Limpiar el contenido actual
-
-                        // Iterar sobre los casilleros y mostrarlos en la lista
-                        data.forEach(casillero => {
-                            const listItem = document.createElement('li');
-                            listItem.innerHTML = `
-                                <a href="/casilleros/detalle/${casillero.id}/">${casillero.nombre}</a>
-                                - ${casillero.ubicacion}
-                                - ${casillero.precio}
-                                <a href="/casilleros/bloquear/${casillero.id}/">${casillero.estado === 'bloqueado' ? 'Desbloquear' : 'Bloquear'}</a>
-                                <a href="/casilleros/cambiar-apertura/${casillero.id}/">${casillero.apertura === 'cerrado' ? 'Abrir' : 'Cerrar'}</a>
-                            `;
-                            listElement.appendChild(listItem);
-                        });
-                    })
-                    .catch(error => console.error('Error al cargar los casilleros:', error));
-            }
-
-            // Llamar a la función para cargar los casilleros cuando se cargue la página
-            fetchCasilleros();
-        });
-    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <h1>Lista de Casilleros</h1>
-    <ul id="casilleros-list"></ul>  <!-- La lista de casilleros se mostrará aquí -->
+    
+    <ul id="casillero-list"></ul>
+
+    <script>
+        // Función para cargar casilleros
+        function loadCasilleros() {
+            $.ajax({
+                url: '/casilleros/api/lista/',  // API que provee los datos de Firebase
+                type: 'GET',
+                success: function(data) {
+                    var casilleros = data;  // Respuesta JSON con los casilleros
+                    var casilleroList = $('#casillero-list');
+                    
+                    // Limpiar la lista anterior antes de mostrar los datos nuevos
+                    casilleroList.empty();
+
+                    // Iterar sobre los casilleros y agregarlos a la lista HTML
+                    for (var id in casilleros) {
+                        var casillero = casilleros[id];
+                        casilleroList.append(
+                            '<li>' +
+                            'Nombre: ' + casillero.nombre + ', ' +
+                            'Ubicación: ' + casillero.ubicacion + ', ' +
+                            'Descrpcion: ' + casillero.descripcion + ', ' +
+                            'Precio: ' + casillero.precio + ', ' +
+                            'Estado de bloqueo: ' + (casillero.estado_bloqueo ? 'Bloqueado' : 'Desbloqueado') + ', ' +
+                            'Estado de apertura: ' + casillero.apertura +
+                            '</li>'
+                        );
+                    }
+                }
+            });
+        }
+
+        // Llamada a la función para cargar los casilleros al cargar la página
+        $(document).ready(function() {
+            loadCasilleros();
+
+            // Configuramos el intervalo para actualizar la lista cada 5 segundos
+            setInterval(loadCasilleros, 5000);  // Actualiza cada 5 segundos
+        });
+    </script>
 </body>
 </html>
