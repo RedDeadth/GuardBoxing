@@ -33,18 +33,19 @@
                         var casillero = casilleros[id];
 
                         // Generar texto dinámico para bloqueo y apertura
-                        var texto_bloqueo = casillero.estado_bloqueo ? 'Desbloquear' : 'Bloquear';
-                        var texto_apertura = casillero.apertura === 'abierto' ? 'Cerrar' : 'Abrir';
+                        var texto_bloqueo = casillero.blocked ? 'Desbloquear' : 'Bloquear';
+                        var texto_apertura = casillero.open ? 'Cerrar' : 'Abrir';
 
                         // Línea modificada: Incluir enlace al detalle de casillero
                         casilleroList.append(
                             '<li>' +
                             'id: '+ id + '<br>' +
-                            'Nombre: ' + casillero.nombre + '<br>' +
-                            'Ubicación: ' + casillero.ubicacion + '<br>' +
-                            'Precio: ' + casillero.precio + '<br>' +
-                            'Estado de bloqueo: ' + (casillero.estado_bloqueo ? 'Bloqueado' : 'Desbloqueado') + '<br>' +
-                            'Estado de apertura: ' + casillero.apertura + '<br>' +
+                            'Ubicación: ' + casillero.location + '<br>' +
+                            'Precio: ' + casillero.price + '<br>' +
+                            'Estado de bloqueo: ' + (casillero.blocked ? 'Bloqueado' : 'Desbloqueado') + '<br>' +
+                            // Modificación: Mostrar estado de apertura basado en "open"
+                            'Estado de apertura: ' + (casillero.open ? 'Abierto' : 'Cerrado') + '<br>' +
+                            'Estado de la Ocupacion: ' + (casillero.occupied ? 'Ocupado' : 'Desocupado') + '<br>' +
                             // Añadido: Enlace al detalle del casillero
                             '<a href="/casilleros/detalle/' + id + '/">Ver Detalles</a><br>' +
                             '<button class="bloquear-btn" data-id="' + id + '">' + texto_bloqueo + '</button> ' +
@@ -64,10 +65,10 @@
                 success: function(response) {
                     // Actualizar dinámicamente el estado en la interfaz
                     var botonBloqueo = $('button.bloquear-btn[data-id="' + id + '"]');
-                    botonBloqueo.text(response.estado_bloqueo ? 'Desbloquear' : 'Bloquear');
+                    botonBloqueo.text(response.blocked ? 'Desbloquear' : 'Bloquear');
 
                     var estadoBloqueo = botonBloqueo.closest('li').find('br').eq(2).prev();
-                    estadoBloqueo.text('Estado de bloqueo: ' + (response.estado_bloqueo ? 'Bloqueado' : 'Desbloqueado'));
+                    estadoBloqueo.text('Estado de bloqueo: ' + (response.blocked? 'Bloqueado' : 'Desbloqueado'));
                 }
             });
         }
@@ -80,10 +81,10 @@
                 success: function(response) {
                     // Actualizar dinámicamente el estado en la interfaz
                     var botonApertura = $('button.apertura-btn[data-id="' + id + '"]');
-                    botonApertura.text(response.apertura === 'abierto' ? 'Cerrar' : 'Abrir');
+                    botonApertura.text(response.open === 'abierto' ? 'Cerrar' : 'Abrir');
 
                     var estadoApertura = botonApertura.closest('li').find('br').eq(3).prev();
-                    estadoApertura.text('Estado de apertura: ' + response.apertura);
+                    estadoApertura.text('Estado de apertura: ' + response.open);
                 }
             });
         }

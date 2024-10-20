@@ -9,5 +9,9 @@ urlpatterns = [
     path('crear/', views.crear_casillero, name='crear_casillero'),
     path('detalle/<str:id>/', views.detalle_casillero, name='detalle_casillero'),
     path('bloquear/<str:id>/', views.bloquear_casillero, name='bloquear_casillero'),
-    path('abrir/<str:id>/', views.gestionar_apertura, name='gestionar_apertura'),  # Nueva URL para gestionar la apertura
+    path('abrir/<str:id>/', views.gestionar_apertura, name='gestionar_apertura'), 
+
+    #url para comparitr el acceso por nickname
+    path('compartir/<str:id>/', views.compartir_casillero, name='compartir_casillero'),
+
 ]
