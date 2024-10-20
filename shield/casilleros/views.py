@@ -32,25 +32,37 @@ def crear_casillero(request):
     if request.method == 'POST':
         id = request.POST.get('id')
         
-        ubicacion = request.POST.get('ubicacion')
-        precio = request.POST.get('precio')
-        descripcion = request.POST.get('descripcion')
+        location = request.POST.get('ubicacion')  # Campo 'ubicacion' en el formulario
+        price = request.POST.get('precio')
+        description = request.POST.get('descripcion')  # Campo 'descripcion' en el formulario
 
+        userId = request.user.id
         # Referencia a la ubicación en Firebase para guardar el casillero
         ref = db.reference('lockers')
+
+        existing_casillero = ref.child(id).get()  # Obtener el casillero existente
+
+        # Verificar si el casillero ya existe
+        if existing_casillero is not None:
+            # Retornar un mensaje de error si el casillero ya existe
+            return render(request, 'casilleros/crear.html', {
+                'error': 'El casillero con este ID ya existe. Por favor, utiliza un ID diferente.'
+            })
+        
         ref.child(id).set({
-            
-            'ubicacion': ubicacion,
-            'precio': precio,
-            'descripcion': descripcion,
+            'location': location,  # Cambiado de 'ubicacion' a 'location'
+            'price': price,
+            'description': description,  # Cambiado de 'descripcion' a 'description'
             'blocked': False,  # Booleano para indicar si el casillero está bloqueado
             'open': False,  # Booleano para indicar si el casillero está abierto
             'occupied': False,  # Booleano para indicar si el casillero está ocupado
             'sharedwith': [],  # Lista vacía para compartir con usuarios
-            'reservationendtime': None  # Tiempo de finalización de la reserva
+            'reservationendtime': None,  # Tiempo de finalización de la reserva
+            'userId': userId,
         })
 
         return redirect('casilleros:casilleros_list')
+    
     return render(request, 'casilleros/crear.html')
 
 

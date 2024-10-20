@@ -11,20 +11,26 @@
     <h1>Detalles del Casillero</h1>
     
     <p>ID: {{ id }}</p>
-    <p>Nombre: {{ casillero.nombre }}</p>
-    <p>Ubicación: {{ casillero.ubicacion }}</p>
-    <p>Precio: {{ casillero.precio }}</p>
-    <p>Descripción: {{ casillero.descripcion }}</p>
+    
+    <p>Ubicación: {{ casillero.location}}</p> <!-- Cambiado de 'ubicacion' a 'location' -->
+    <p>Precio: {{ casillero.price }}</p> <!-- Cambiado de 'precio' a 'price' -->
+    <p>Descripción: {{ casillero.description }}</p> <!-- Cambiado de 'descripcion' a 'description' -->
+    <p>ID DEL Propietario: {% if casillero.userId %}{{ casillero.userId }}{% else %}Ninguno{% endif %}</p>
+    
+    <p>Usuarios compartidos: 
+        {% if casillero.sharedwith|length > 0 %}
+            {{ casillero.sharedwith|join:", " }}  <!-- Muestra los usuarios compartidos si existen -->
+        {% else %}
+            Ninguno  <!-- Si no hay usuarios, imprime 'Ninguno' -->
+        {% endif %}
+    </p>
 
-    <!-- Nuevo campo: Nombre del propietario -->
-    <p>Propietario: {{ casillero.propietario }}</p> <!-- Campo añadido -->
-
-    <p>Estado de bloqueo: <span id="estado_bloqueo">{{ casillero.estado_bloqueo|yesno:"Bloqueado,Desbloqueado" }}</span></p>
-    <p>Estado de apertura: <span id="estado_apertura">{{ casillero.apertura }}</span></p>
+    <p>Estado de bloqueo: <span id="estado_bloqueo">{{ casillero.blocked|yesno:"Bloqueado,Desbloqueado" }}</span></p> <!-- Cambiado a 'blocked' -->
+    <p>Estado de apertura: <span id="estado_apertura">{{ casillero.open|yesno:"Abierto,Cerrado" }}</span></p> <!-- Cambiado a 'open' -->
 
     <!-- Botones para cambiar el estado de bloqueo y apertura -->
     <button id="bloquear-btn" class="bloquear-btn" data-id="{{ id }}">
-        {% if casillero.estado_bloqueo %}
+        {% if casillero.blocked %}
             Desbloquear
         {% else %}
             Bloquear
@@ -32,7 +38,7 @@
     </button>
 
     <button id="apertura-btn" class="apertura-btn" data-id="{{ id }}">
-        {% if casillero.apertura == 'abierto' %}
+        {% if casillero.open %}
             Cerrar
         {% else %}
             Abrir
@@ -48,8 +54,8 @@
                 success: function(response) {
                     // Actualizar dinámicamente el estado en la interfaz
                     var botonBloqueo = $('#bloquear-btn');
-                    botonBloqueo.text(response.estado_bloqueo ? 'Desbloquear' : 'Bloquear');
-                    $('#estado_bloqueo').text(response.estado_bloqueo ? 'Bloqueado' : 'Desbloqueado');
+                    botonBloqueo.text(response.blocked ? 'Desbloquear' : 'Bloquear');
+                    $('#estado_bloqueo').text(response.blocked ? 'Bloqueado' : 'Desbloqueado');
                 },
                 error: function(xhr, status, error) {
                     console.error("Error al cambiar el estado de bloqueo: " + error);
@@ -65,8 +71,8 @@
                 success: function(response) {
                     // Actualizar dinámicamente el estado en la interfaz
                     var botonApertura = $('#apertura-btn');
-                    botonApertura.text(response.apertura === 'abierto' ? 'Cerrar' : 'Abrir');
-                    $('#estado_apertura').text(response.apertura);
+                    botonApertura.text(response.open ? 'Cerrar' : 'Abrir');
+                    $('#estado_apertura').text(response.open ? 'Abierto' : 'Cerrado');
                 },
                 error: function(xhr, status, error) {
                     console.error("Error al cambiar el estado de apertura: " + error);
