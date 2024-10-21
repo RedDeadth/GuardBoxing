@@ -6,38 +6,26 @@ from django.conf import settings
 from .models import Usuario
 from django.views.decorators.cache import never_cache
 import os
-#encontré un bug, al momento de iniciar sesión me manda
-# al index, y al retrocede la pagina varias veces me manda
-# al login y al escribir cualquier cosa en las credenciales
-# me sale como si fuera un usuario que existe pero no existe 
-# y entra normal al index -------- SOLUCIONADO ------------- @never_cache ------------
+from django.http import JsonResponse
 
-#@never_cache, hace que no guarde el cache del login y registrar, al final ese error solo era visual pero igual lo puse para que no sea vea así
-#
-FIREBASE_WEB_API_KEY = "AIzaSyDoGQNvfqGc-9d5hXTYgT8RNzLX-v0eBP0"
 
-#Proteger vistas para que no las salten sin logearse
-#-----------------------------------------------------------
+FIREBASE_WEB_API_KEY = "AIzaSyC3ERiX-ARDhZq4m0NulXAjRExyHQqral4"
+
 
 def login_required_firebase(view_func):
     def wrapper(request, *args, **kwargs):
         if 'id_token' not in request.session:
-            return redirect('login')  # Si no tiene token, redirigir al login
+            return redirect('login') 
         return view_func(request, *args, **kwargs)
     return wrapper
-#-----------------------------------------------------------
 
 @never_cache
+
 def registrar(request):
-    error_message = None
-
-    # Si el usuario ya está autenticado, redirigir al index
-    if 'id_token' in request.session:
-        return redirect('casilleros:casilleros_list')
-
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
+            # Procesar el registro
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
             usuario = form.cleaned_data['usuario']
@@ -49,80 +37,54 @@ def registrar(request):
                     password=password,
                     display_name=usuario
                 )
-                
+
                 # Guardar en la base de datos local
                 Usuario.objects.create(email=email, nickname=usuario)
 
-                return redirect('casilleros:casilleros_list')
-
+                return JsonResponse({'success': True, 'message': 'Usuario registrado exitosamente.'})
             except Exception as e:
-                error_message = str(e)
+                return JsonResponse({'success': False, 'error': str(e)})
 
-        else:
-            error_message = "Formulario inválido. Verifica los campos."
-    
-    else:
-        form = RegistroForm()
+    return JsonResponse({'success': False, 'error': 'Formulario inválido.'}, status=400)
 
-    return render(request, 'usuarios/registro.html', {'form': form, 'error_message': error_message})
-
-@never_cache
 def login(request):
-    error_message = None
-
-    # Si el usuario ya tiene un token, redirigir al index
-    if 'id_token' in request.session:
-        return redirect('casilleros:casilleros_list')
-
     if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            usuario = form.cleaned_data['usuario']  # Puede ser correo o nickname
-            password = form.cleaned_data['password']
+        usuario = request.POST.get('usuario')
+        password = request.POST.get('password')
 
-            # Verificar si el usuario es un correo o un nickname
-            if '@' in usuario:
-                email = usuario  # Es un correo
-            else:
-                # Buscar el correo asociado al nickname en la base de datos local
-                try:
-                    user = Usuario.objects.get(nickname=usuario)
-                    email = user.email
-                except Usuario.DoesNotExist:
-                    error_message = "El nombre de usuario no existe"
-                    return render(request, 'usuarios/login.html', {'form': form, 'error_message': error_message})
-
-            # Autenticar con Firebase usando el correo y la contraseña
+        # Verificar si el usuario es un correo o un nickname
+        email = None
+        if '@' in usuario:
+            email = usuario
+        else:
             try:
-                data = {
-                    'email': email,
-                    'password': password,
-                    'returnSecureToken': True
-                }
-                # Petición a Firebase para la autenticación
-                result = requests.post(
-                    f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}", 
-                    json=data
-                )
-                result_data = result.json()
+                user = Usuario.objects.get(nickname=usuario)
+                email = user.email
+            except Usuario.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'El nombre de usuario no existe'})
 
-                # Si la autenticación es exitosa
-                if 'idToken' in result_data:
-                    request.session['id_token'] = result_data['idToken']
-                    request.session['email'] = email  # Guardar el email en la sesión
-                    return redirect('casilleros:casilleros_list')  # Redirigir al index
-                else:
-                    error_message = "Credenciales inválidas. Por favor, verifica tu correo y contraseña."
+        # Autenticar con Firebase
+        try:
+            data = {
+                'email': email,
+                'password': password,
+                'returnSecureToken': True
+            }
+            result = requests.post(
+                f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}",
+                json=data
+            )
+            result_data = result.json()
 
-            except requests.exceptions.RequestException as e:
-                error_message = f"Error de conexión: {str(e)}"
-            except Exception as e:
-                error_message = f"Error inesperado: {str(e)}"
-    
-    else:
-        form = LoginForm()
+            if 'idToken' in result_data:
+                return JsonResponse({'success': True, 'id_token': result_data['idToken'], 'email': email})
+            else:
+                return JsonResponse({'success': False, 'error': 'Credenciales inválidas.'})
 
-    return render(request, 'usuarios/login.html', {'form': form, 'error_message': error_message})
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)
 
 @login_required_firebase
 def index(request):
@@ -150,5 +112,14 @@ def logout(request):
         pass
     return redirect('login')  # Redirigir al login después de cerrar sesión
 
+#ANDROID
+def verificar_token(request):
+    token = request.POST.get('id_token')  # Obtén el token del POST
 
+    try:
+        # Verifica el token usando Firebase Admin SDK
+        decoded_token = auth.verify_id_token(token)
+        return JsonResponse({'valid': True, 'uid': decoded_token['uid']})
+    except Exception as e:
+        return JsonResponse({'valid': False, 'error': str(e)}, status=401)
 
