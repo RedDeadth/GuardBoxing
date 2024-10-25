@@ -14,7 +14,7 @@ import os
 
 #@never_cache, hace que no guarde el cache del login y registrar, al final ese error solo era visual pero igual lo puse para que no sea vea así
 #
-FIREBASE_WEB_API_KEY = "AIzaSyDoGQNvfqGc-9d5hXTYgT8RNzLX-v0eBP0"
+FIREBASE_WEB_API_KEY = "AIzaSyC3ERiX-ARDhZq4m0NulXAjRExyHQqral4"
 
 #Proteger vistas para que no las salten sin logearse
 #-----------------------------------------------------------

@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    
+    'corsheaders',
     'rest_framework',
     'casilleros',
     'usuarios',
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -51,6 +52,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # URL del frontend React
 ]
 
 ROOT_URLCONF = 'shield.urls'
@@ -133,7 +138,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 import firebase_admin
 from firebase_admin import credentials
 
-cred = credentials.Certificate("guardbox-42992-firebase-adminsdk-s0jd1-862ca12fc1.json")
+cred = credentials.Certificate("guardbox-42992-firebase-adminsdk-s0jd1-3e7d3665c5.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://guardbox-42992-default-rtdb.firebaseio.com/'  # Asegúrate de que esta URL sea la correcta
 })
