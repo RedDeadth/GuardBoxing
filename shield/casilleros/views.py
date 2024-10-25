@@ -28,13 +28,16 @@ def casilleros_list(request):
     return Response({"message": "No hay casilleros disponibles."}, status=status.HTTP_404_NOT_FOUND)
 
 
-
 @api_view(['POST'])
 def crear_casillero(request):
     serializer = CasilleroSerializer(data=request.data)
 
     if serializer.is_valid():
-        id = serializer.validated_data['id']
+        id = serializer.validated_data.get('id', None)  # Verifica si el 'id' está presente en los datos validados
+
+        if not id:
+            return Response({"error": "El campo 'id' es obligatorio."}, status=status.HTTP_400_BAD_REQUEST)
+
         ref = db.reference(f'lockers/{id}')
 
         if ref.get() is not None:
@@ -44,6 +47,7 @@ def crear_casillero(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 def detalle_casillero(request, id):
@@ -56,24 +60,7 @@ def detalle_casillero(request, id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response({"message": "Casillero no encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET'])
-def abrir_casillero(request, id):
-    ref = db.reference(f'lockers/{id}')
-    casillero = ref.get()
 
-    if casillero is None:
-        return Response({"error": "Casillero no encontrado."}, status=status.HTTP_404_NOT_FOUND)
-
-    # Obtener el estado actual de 'open'
-    open_state = casillero.get('open', False)
-
-    # Invertir el estado de 'open'
-    new_open_state = not open_state
-
-    # Actualizar el estado en Firebase
-    ref.update({'open': new_open_state})
-
-    return Response({'open': new_open_state}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def gestionar_apertura(request, id):
@@ -176,56 +163,23 @@ def abrir_casillero(request, id):
         return JsonResponse({'open': new_open_state})
 
 
-#RESERVAR UN CASILLERO, FUNCION API DE CLIENTE
+"""
 
-@api_view(['POST'])
-def reservar_casillero(request):
-    casillero_id = request.data.get('id')
-    user_id = request.data.get('userId')
-    tiempo_reserva = request.data.get('reservationendtime')
-
-    if not casillero_id or not user_id or not tiempo_reserva:
-        return Response({'error': 'Faltan parámetros'}, status=400)
-    
-    # Referencia al casillero en Firebase
-    ref = db.reference(f'lockers/{casillero_id}')
+@api_view(['GET'])
+def abrir_casillero(request, id):
+    ref = db.reference(f'lockers/{id}')
     casillero = ref.get()
-    
-    if casillero['occupied']:
-        return Response({'error': 'El casillero ya está ocupado'}, status=400)
-    
-    # Actualizar los datos del casillero
-    ref.update({
-        'userId': user_id,
-        'occupied': True,
-        'reservationendtime': tiempo_reserva
-    })
-    
-    return Response({'success': 'Casillero reservado con éxito'})
 
-# Función para compartir un casillero
-def compartir_casillero(request, id):
-    if request.method == 'POST':
-        # Obtener el nickname del usuario con quien se quiere compartir
-        nickname = request.POST.get('nickname')
+    if casillero is None:
+        return Response({"error": "Casillero no encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
-        # Referencia al casillero en Firebase
-        ref = db.reference(f'lockers/{id}')
+    # Obtener el estado actual de 'open'
+    open_state = casillero.get('open', False)
 
-        # Obtener la lista actual de usuarios con los que se comparte el casillero
-        casillero = ref.get()
-        shared_with = casillero.get('sharedwith', [])
+    # Invertir el estado de 'open'
+    new_open_state = not open_state
 
-        # Agregar el nuevo nickname a la lista
-        if nickname not in shared_with:
-            shared_with.append(nickname)
+    # Actualizar el estado en Firebase
+    ref.update({'open': new_open_state})
 
-        # Actualizar la base de datos
-        ref.update({
-            'sharedwith': shared_with
-        })
-
-        return redirect('casilleros:detalle_casillero', id=id)
-
-    return render(request, 'casilleros/compartir.html', {'id': id})
-    """
+    return Response({'open': new_open_state}, status=status.HTTP_200_OK)
