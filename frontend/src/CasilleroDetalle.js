@@ -67,9 +67,9 @@ const CasilleroDetalle = () => {
                 <p><strong>Estado de Bloqueo:</strong> {casillero.blocked ? 'Bloqueado' : 'Desbloqueado'}</p>
                 <p><strong>Ocupado:</strong> {casillero.occupied ? 'Ocupado' : 'Desocupado'}</p>
                 <p><strong>Estado de la Puerta:</strong> {casillero.open ? 'Abierto' : 'Cerrado'}</p>
-                <p><strong>Propietario:</strong> {casillero.userId || 'Sin propietario'}</p>
+                <p><strong>Propietario:</strong> {casillero.propietario || 'Sin propietario'}</p>
                 <p><strong>Compartido con:</strong> {casillero.sharedwith && casillero.sharedwith.length > 0 ? casillero.sharedwith.join(', ') : 'Nadie'}</p>
-                <p><strong>Fecha Fin de Reserva:</strong> 
+                <p><strong>Fecha Fin de Reserva: </strong> 
                     {casillero.reservationEndTime ? formatDate(casillero.reservationEndTime) : 'Sin reserva activa'}
                 </p>
                 <p><strong>Tiempo Restante de la Reserva:</strong> 

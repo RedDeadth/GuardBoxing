@@ -9,6 +9,9 @@ from django.http import JsonResponse
 from .models import Casillero
 from datetime import datetime, timedelta
 from rest_framework import status
+import firebase_admin
+from firebase_admin import auth
+from datetime import datetime, timezone
 
 @api_view(['GET'])
 def casilleros_list(request):
@@ -16,10 +19,13 @@ def casilleros_list(request):
     casilleros = ref.get()
 
     if casilleros:
-        # Convierte los datos a una lista que incluye el ID
         casilleros_con_id = []
         for key, value in casilleros.items():
-            value['id'] = key  # Agregar el ID basado en la clave
+            value['id'] = key
+            # Convertir `reservationEndTime` a un objeto datetime en UTC
+            if 'reservationEndTime' in value and value['reservationEndTime']:
+                value['reservationEndTime'] = datetime.fromtimestamp(value['reservationEndTime'] / 1000, tz=timezone.utc).isoformat()
+
             casilleros_con_id.append(value)
 
         serializer = CasilleroSerializer(casilleros_con_id, many=True)
@@ -54,11 +60,26 @@ def detalle_casillero(request, id):
     ref = db.reference(f'lockers/{id}')
     casillero = ref.get()
 
-    if casillero:
-        serializer = CasilleroSerializer(data=casillero)
-        serializer.is_valid()  # Para validación en caso de que necesites
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    return Response({"message": "Casillero no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+    if not casillero:
+        return Response({"message": "Casillero no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+    # Obtener el ID del propietario
+    user_id = casillero.get("userId")
+    propietario = None
+
+    if user_id:
+        try:
+            # Busca al usuario en Firebase Authentication
+            user_record = auth.get_user(user_id)
+            propietario = user_record.display_name or user_record.email  # Usar display_name o email como nombre
+        except firebase_admin.auth.UserNotFoundError:
+            propietario = "Propietario desconocido"
+
+    # Serializar los datos del casillero
+    serializer = CasilleroSerializer(data={**casillero, "propietario": propietario})
+    serializer.is_valid()
+    
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
