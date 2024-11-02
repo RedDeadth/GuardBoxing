@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import CrearCasilleroModal from './CrearCasilleroModal';
 
 const CasillerosList = () => {
     const [casilleros, setCasilleros] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [newCasillero, setNewCasillero] = useState({
+        id: '',
+        location: '',
+        price: '',
+        description: '',
+    });
     const navigate = useNavigate();
 
     const verDetalles = (id) => {
@@ -66,7 +73,28 @@ const CasillerosList = () => {
         .catch(error => console.error('Error en la petición:', error));
     };
 
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewCasillero((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleAddCasillero = () => {
+        fetch('http://127.0.0.1:8000/casilleros/api/crear/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newCasillero),
+        })
+        .then(response => response.json())
+        .then(data => {
+            setCasilleros([...casilleros, data]);
+            setShowModal(false);
+            setNewCasillero({ id: '', location: '', price: '', description: '' });
+        })
+        .catch(error => console.error('Error creando casillero:', error));
+    };
+
     return (
+        
         <div className="container mx-auto p-4">
             <h1 className="text-3xl font-bold mb-4">Lista de Casilleros</h1>
             <div className="grid grid-cols-5 gap-4">
@@ -102,11 +130,29 @@ const CasillerosList = () => {
                                 {casillero.open ? 'Cerrar' : 'Abrir'}
                             </button>
                         </div>
+
                     </div>
                 ))}
             </div>
-        </div>
-    );
-};
+            {/* Botón flotante para abrir el modal */}
+        <button
+            onClick={() => setShowModal(true)}
+            className="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-full"
+        >
+            + Crear un nuevo casillero
+        </button>
+
+        {/* Modal para crear un nuevo casillero */}
+        <CrearCasilleroModal
+            isVisible={showModal}
+            onClose={() => setShowModal(false)}
+            onAdd={handleAddCasillero}
+            newCasillero={newCasillero}
+            handleInputChange={handleInputChange}
+        />
+    </div>
+);
+}
+            
 
 export default CasillerosList;
