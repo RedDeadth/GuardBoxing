@@ -6,6 +6,9 @@ from django.conf import settings
 from .models import Usuario
 from django.views.decorators.cache import never_cache
 import os
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import ensure_csrf_cookie
 #encontré un bug, al momento de iniciar sesión me manda
 # al index, y al retrocede la pagina varias veces me manda
 # al login y al escribir cualquier cosa en las credenciales
@@ -26,6 +29,21 @@ def login_required_firebase(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 #-----------------------------------------------------------
+
+@ensure_csrf_cookie
+@require_http_methods(["GET"])
+def get_current_user(request):
+    if 'id_token' not in request.session:
+        return JsonResponse({
+            'authenticated': False,
+            'message': 'No authenticated user'
+        }, status=401)
+    
+    return JsonResponse({
+        'authenticated': True,
+        'user_name': request.session.get('user_name', ''),
+        'email': request.session.get('email', '')
+    })
 
 @never_cache
 def registrar(request):
@@ -110,6 +128,7 @@ def login(request):
                 if 'idToken' in result_data:
                     request.session['id_token'] = result_data['idToken']
                     request.session['email'] = email  # Guardar el email en la sesión
+                    request.session['user_name'] = result_data.get('displayName', email.split('@')[0])
                     return redirect('casilleros:casilleros_list')  # Redirigir al index
                 else:
                     error_message = "Credenciales inválidas. Por favor, verifica tu correo y contraseña."
