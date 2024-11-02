@@ -117,13 +117,23 @@ def bloquear_casillero(request, id):
     new_blocked_state = not blocked
 
     if new_blocked_state:
+
+        userId = casillero.get('userId')
+
         ref.update({
             'blocked': new_blocked_state,
             'open': False,  # Cerrar el casillero
-            'userId': None  # Evitar que el usuario que lo reservó lo gestione
+            'userId': None,  # Evitar que el usuario que lo reservó lo gestione
+            'previousUserId': userId  # Guardar el propietario original
         })
     else:
-        ref.update({'blocked': new_blocked_state})  # Solo desbloquear
+        # Restaurar el userId original si existía
+        previous_user_id = casillero.get('previousUserId')
+        ref.update({
+            'blocked': new_blocked_state,
+            'userId': previous_user_id  # Restaurar permisos
+        })
+        ref.child('previousUserId').delete()  # Eliminar el campo temporal
 
     return Response({'blocked': new_blocked_state}, status=status.HTTP_200_OK)
 
