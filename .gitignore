@@ -26,5 +26,6 @@ dist/
 # IDEs
 .vscode/
 .idea/
-*.swp
-*.json
+# Firebase y Llaves Privadas
+*firebase-adminsdk*.json
+google-services.json

@@ -19,9 +19,9 @@ El sistema está dividido internamente en dos capas (Monorrepo):
 
 | Acceso Híbrido (Google/Manual) | Panel Principal (Tiempo Real) |
 | :---: | :---: |
-| ![Login Form](1login.png) | ![Dashboard Grid](2List.png) |
+| ![Login Form](docs/1login.png) | ![Dashboard Grid](docs/2List.png) |
 | **Buscador Predictivo de Arrendatarios** | **Detalle Individual de Casilleros** |
-| ![Search Bar](4Search.png) | ![Detail View](3Detail.png) |
+| ![Search Bar](docs/4Search.png) | ![Detail View](docs/3Detail.png) |
 
 ---
 

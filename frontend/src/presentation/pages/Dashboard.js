@@ -20,7 +20,7 @@ export default function Dashboard() {
 
     const onBlock = async (id) => {
         await handleBlockToggle(id);
-        loadData(); // refresh list
+        loadData();
     };
 
     const onOpen = async (id) => {
