@@ -138,9 +138,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 import firebase_admin
 from firebase_admin import credentials
 
-cred = credentials.Certificate("guardbox-42992-firebase-adminsdk-s0jd1-3e7d3665c5.json")
+cred = credentials.Certificate("guardianbox-2636d-firebase-adminsdk-fbsvc-3abcc5a535.json")
 firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://guardbox-42992-default-rtdb.firebaseio.com/'  # Asegúrate de que esta URL sea la correcta
+    'databaseURL': 'https://guardianbox-2636d-default-rtdb.firebaseio.com/' 
 })
 
 #Protección para que no salten el login de la página sin antes iniciar sesión

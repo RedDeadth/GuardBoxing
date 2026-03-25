@@ -15,6 +15,16 @@ El sistema está dividido internamente en dos capas (Monorrepo):
 
 ---
 
+## 📸 Pantallas Administrativas
+
+| Acceso Híbrido (Google/Manual) | Panel Principal (Tiempo Real) |
+| :---: | :---: |
+| ![Login Form](1login.png) | ![Dashboard Grid](2List.png) |
+| **Buscador Predictivo de Arrendatarios** | **Detalle Individual de Casilleros** |
+| ![Search Bar](4Search.png) | ![Detail View](3Detail.png) |
+
+---
+
 ## 🛠 Entorno Técnico
 
 - **Backend:** Python + Django
