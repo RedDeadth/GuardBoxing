@@ -62,7 +62,9 @@ python shield/manage.py migrate
 python shield/manage.py runserver
 ```
 
-> **¡Advertencia de Seguridad!** Por favor renombra `.env.example` a `.env` y ubica o genera una nueva `SECRET_KEY` de Django válida.
+> **💡 Configuración de Credenciales Críticas:** 
+> 1. Renombra `.env.example` a `.env` e inyecta una nueva `SECRET_KEY` de Django válida.
+> 2. Renombra `firebase-adminsdk.json.example` introduciendo el nombre exacto que persigue tu `settings.py` (Ej. `guardianbox-2636d-firebase-adminsdk...json`) y reemplaza su interior falso por las llaves reales de acceso descargadas desde las Cuentas de Servicio de tu Consola Firebase.
 
 ### 3. Levantar el Panel Front-end (React)
 
