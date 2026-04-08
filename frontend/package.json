@@ -45,6 +45,7 @@
     "tailwindcss": "^3.4.14"
   },
   "overrides": {
-    "path-to-regexp": "^0.1.13"
+    "path-to-regexp": "^0.1.13",
+    "form-data": "^4.0.5"
   }
 }
